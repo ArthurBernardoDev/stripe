@@ -15,17 +15,32 @@ export const checkoutSchema = z.object({
   state: z.string().min(1).trim(),
   postal: z.string().min(1).trim(),
 });
+
 export type CheckoutType = z.infer<typeof checkoutSchema>;
 
 interface OrderInput extends CheckoutType {
   totals: string;
   products: string;
+  stripePaymentIntentId?: string;
 }
 
 export function createOrder(data: OrderInput) {
   return db.order.create({
-    data
-  })
+    data,
+  });
+}
+
+export function getOrder(orderId: string) {
+  return db.order.findUnique({
+    where: { id: orderId },
+  });
+}
+
+export function updateOrder(id: string, data: Partial<OrderInput>) {
+  return db.order.update({
+    where: { id },
+    data,
+  });
 }
 
 export function getTotals({ products }: { products: Product[] }): Totals {
